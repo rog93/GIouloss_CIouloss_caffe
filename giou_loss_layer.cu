@@ -9,11 +9,11 @@ namespace caffe {
 
 template <typename Dtype>
 __global__ void bbox_transform_kernel(const int nthreads, const Dtype* deltas, Dtype* out, const bool clip, const Dtype clip_bound, 
-  const Dtype x1_std, const Dtype x2_std, const Dtype w_std, const Dtype h_std) {
+  const Dtype x_std, const Dtype y_std, const Dtype w_std, const Dtype h_std) {
   CUDA_KERNEL_LOOP(index, nthreads) {
     int i = index;
-    Dtype dx = deltas[i * 4 + 0] * x1_std;
-    Dtype dy = deltas[i * 4 + 1] * x2_std;
+    Dtype dx = deltas[i * 4 + 0] * x_std;
+    Dtype dy = deltas[i * 4 + 1] * y_std;
     
     Dtype dw = deltas[i * 4 + 2] * w_std;
     Dtype dh = deltas[i * 4 + 3] * h_std;
@@ -131,7 +131,7 @@ void GIouLossLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
 template <typename Dtype>
 __global__ void GIouBackward(const int n, const Dtype* bbox_pred, const Dtype* pred, const Dtype* gt, 
   const Dtype* bbox_inside_weights, const Dtype* bbox_outside_weights, Dtype* bottom_diff, const bool clip, 
-  const Dtype clip_bound, const Dtype x1_std, const Dtype x2_std, const Dtype w_std, const Dtype h_std, 
+  const Dtype clip_bound, const Dtype x_std, const Dtype y_std, const Dtype w_std, const Dtype h_std, 
   const Dtype loss_weight, int cls_num) {
   CUDA_KERNEL_LOOP(index, n) {
     int i = index;
@@ -242,9 +242,9 @@ __global__ void GIouBackward(const int n, const Dtype* bbox_pred, const Dtype* p
     bottom_diff[i * 4 + 3] = 0; 
     
     bottom_diff[i * 4 + 0] = (dl + dr) * static_cast<Dtype>(cls_num) / static_cast<Dtype>(n) * 
-        Dtype(-1) * iou_weights * x1_std * loss_weight;
+        Dtype(-1) * iou_weights * x_std * loss_weight;
     bottom_diff[i * 4 + 1] = (dt + db) * static_cast<Dtype>(cls_num) / static_cast<Dtype>(n) * 
-        Dtype(-1) * iou_weights *     x2_std * loss_weight;
+        Dtype(-1) * iou_weights * y_std * loss_weight;
     bottom_diff[i * 4 + 2] = ((-0.5 * dl) + (0.5 * dr)) * exp(bbox_pred[i * 4 + 2] * w_std) * 
         static_cast<Dtype>(cls_num) / static_cast<Dtype>(n) * Dtype(-1) * iou_weights * w_std * loss_weight;
     bottom_diff[i * 4 + 3] = ((-0.5 * dt) + (0.5 * db)) * exp(bbox_pred[i * 4 + 3] * h_std) * 

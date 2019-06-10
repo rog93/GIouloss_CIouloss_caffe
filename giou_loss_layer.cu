@@ -249,10 +249,10 @@ __global__ void GIouBackward(const int n, const Dtype* bbox_pred, const Dtype* p
         static_cast<Dtype>(cls_num) / static_cast<Dtype>(n) * Dtype(-1) * iou_weights * w_std * loss_weight;
     bottom_diff[i * 4 + 3] = ((-0.5 * dt) + (0.5 * db)) * exp(bbox_pred[i * 4 + 3] * h_std) * 
         static_cast<Dtype>(cls_num) / static_cast<Dtype>(n) * Dtype(-1) * iou_weights * h_std * loss_weight;
-    if (clip && bbox_pred[i * 4 + 2] > clip_bound){
+    if (clip && bbox_pred[i * 4 + 2] * w_std > clip_bound){
         bottom_diff[i * 4 + 2] = 0;
     }
-    if (clip && bbox_pred[i * 4 + 3] > clip_bound){
+    if (clip && bbox_pred[i * 4 + 3] * h_std > clip_bound){
         bottom_diff[i * 4 + 3] = 0;
     }
   

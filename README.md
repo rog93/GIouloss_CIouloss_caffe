@@ -14,6 +14,24 @@ message GIouLossParameter {
 }
 ```
 ### train.prototxt
+Simply replace
+```
+layer {
+  bottom: "bbox_pred"
+  bottom: "proposal_targets"
+  bottom: "box_inside_weights"
+  bottom: "box_outside_weights"
+  top: "loss_bbox"
+  name: "loss_bbox"
+  type: "SmoothL1Loss"
+  loss_weight: 1
+  propagate_down: 1
+  propagate_down: 0
+  propagate_down: 0
+  propagate_down: 0
+}
+```
+By
 ```
 layer {
   bottom: "bbox_pred"

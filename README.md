@@ -1,5 +1,6 @@
 # GIou_loss_caffe
-Caffe version GIou loss Implementation for Faster RCNN/FPN bbox regression
+Caffe version Generalized Iou loss Implementation for Faster RCNN/FPN bbox regression. (https://arxiv.org/abs/1902.09630)
+(https://github.com/generalized-iou)
 # Usage
 ### caffe.proto
 ```

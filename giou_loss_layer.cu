@@ -104,10 +104,6 @@ void GIouLossLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   int cls_num = channel_ / 4;
   int loop_count = norm_count_ * cls_num;
   CHECK_GE(norm_count_, 0);
-  if (norm_count_ == 0) {
-    norm_count_ = Dtype(1);
-    loop_count = Dtype(2);
-  }
   bbox_transform_kernel<Dtype><<<CAFFE_GET_BLOCKS(loop_count), CAFFE_CUDA_NUM_THREADS>>>(
       loop_count, bottom[0]->gpu_data(), pred_.mutable_gpu_data(), clip_, clip_bound_, 
       x_std_, y_std_, w_std_, h_std_);
@@ -268,11 +264,6 @@ void GIouLossLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
     int cls_num = channel_ / 4;
     int loop_count = norm_count_ * cls_num;
     CHECK_GE(norm_count_, 0);
-    
-    if (norm_count_ == 0) {
-      norm_count_ = Dtype(1);
-      loop_count = Dtype(2);
-    }
     GIouBackward<Dtype><<<CAFFE_GET_BLOCKS(loop_count), CAFFE_CUDA_NUM_THREADS>>>(
         loop_count, bottom[0]->gpu_data(), pred_.gpu_data(), gt_.gpu_data(),
         bottom[2]->gpu_data(), bottom[3]->gpu_data(), bottom[0]->mutable_gpu_diff(), 
